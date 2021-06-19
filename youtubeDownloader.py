@@ -30,6 +30,7 @@ def txtVideoTitles():
 
 #download video
 def DownloadVideo():
+    ytdError.config(text="Downloading...",fg="blue")
     choice = ytdchoices.get()
     url = ytdEntry.get()
 
@@ -53,7 +54,7 @@ def DownloadVideo():
     #download function
     select = yt.streams.filter(only_audio=True).first()
     select.download(Folder_Name)
-    ytdError.config(text="DOWNLOAD COMPLETED!!")
+    ytdError.config(text="DOWNLOAD COMPLETED!!",fg="green")
 
 def txtPlaylistDownloader():
     global Txt_Video_Titles
@@ -66,11 +67,11 @@ def txtPlaylistDownloader():
     for x in range(len(Txt_Video_Titles)):
         ytdError.config(text=Txt_Video_Titles[x])
         print(Txt_Video_Titles[x])
-        results = YoutubeSearch(Txt_Video_Titles[x] + " - live", max_results=1).to_json()
+        
+        results = YoutubeSearch(Txt_Video_Titles[x], max_results=1).to_json()
         parseString = "\"url_suffix\": \""
-
         locations = results.find(parseString) 
-        num = locations+len(parseString)
+        num = locations + len(parseString)
         tempString = results[num:]
         urlEnd = tempString[:tempString.find("\"")] 
         print(urlEnd)
@@ -100,7 +101,7 @@ def txtPlaylistDownloader():
             print("Error Downloading Song")
         time.sleep(1)
     
-    ytdError.config(text="DOWNLOAD COMPLETED!!")
+    ytdError.config(text="DOWNLOAD COMPLETED!!",fg="green")
 
 
 root = Tk()
@@ -118,7 +119,7 @@ ytdEntry = Entry(root,width=50,textvariable=ytdEntryVar)
 ytdEntry.grid()
 
 #Error Msg
-ytdError = Label(root,text="Error Msg",fg="red",font=("jost",10))
+ytdError = Label(root,text="- - -",fg="black",font=("jost",10))
 ytdError.grid()
 
 #Select YouTube Link
@@ -130,7 +131,7 @@ playlistTxtButton = Button(root,width=10,bg="red",fg="white",text="Choose Path",
 playlistTxtButton.grid()
 
 #label to confirm txt playlist found
-playlistTxtConfirmLabel = Label(root,text="Error Msg of Path",fg="red",font=("jost",10))
+playlistTxtConfirmLabel = Label(root,text="- - -",fg="red",font=("jost",10))
 playlistTxtConfirmLabel.grid()
 
 #Asking save file label
@@ -142,7 +143,7 @@ saveEntry = Button(root,width=10,bg="red",fg="white",text="Choose Path",command=
 saveEntry.grid()
 
 #Error Msg location
-locationError = Label(root,text="Error Msg of Path",fg="red",font=("jost",10))
+locationError = Label(root,text="- - -",fg="red",font=("jost",10))
 locationError.grid()
 
 #Download Quality
@@ -155,7 +156,7 @@ ytdchoices = ttk.Combobox(root,values=choices)
 ytdchoices.grid()
 
 #download btn
-downloadbtn = Button(root,text="Download",width=10,bg="red",fg="white",command=DownloadVideo)
+downloadbtn = Button(root,text="Download URL",width=10,bg="red",fg="white",command=DownloadVideo)
 downloadbtn.grid()
 
 #btn for initiating download of txt playlist
