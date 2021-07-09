@@ -4,7 +4,7 @@ from tkinter import filedialog
 from pytube import YouTube #pip install pytube3
 from bs4 import BeautifulSoup as bs #pip install beautifulsoup4
 import requests
-from youtube_search import YoutubeSearch #pip install YoutubeSearch
+from youtube_search import YoutubeSearch #pip install youtube_search
 import time
 
 Folder_Name = ""
