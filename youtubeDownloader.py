@@ -4,17 +4,20 @@ from tkinter import filedialog
 from pytube import YouTube #pip install pytube3
 from bs4 import BeautifulSoup as bs #pip install beautifulsoup4
 import requests
-from youtube_search import YoutubeSearch #pip install youtube_search
+from youtube_search import YoutubeSearch #pip install YoutubeSearch
 import time
+import youtube_dl
 
 Folder_Name = ""
 Txt_Video_Titles = []
-
+SaveFilespath = ""
+Yt_URL = ""
 
 #file location
 def openLocation():
     global Folder_Name
     Folder_Name = filedialog.askdirectory()
+    print(Folder_Name)
     if(len(Folder_Name) > 1):
         locationError.config(text=Folder_Name,fg="green")
 
@@ -32,11 +35,11 @@ def txtVideoTitles():
 def DownloadVideo():
     ytdError.config(text="Downloading...",fg="blue")
     choice = ytdchoices.get()
-    url = ytdEntry.get()
+    Yt_URL = ytdEntry.get()
 
-    if(len(url)>1):
+    if(len(Yt_URL)>1):
         ytdError.config(text="")
-        yt = YouTube(url)
+        yt = YouTube(Yt_URL)
 
         if(choice == choices[0]):
             select = yt.streams.filter(progressive=True).first()
@@ -75,24 +78,26 @@ def txtPlaylistDownloader():
         tempString = results[num:]
         urlEnd = tempString[:tempString.find("\"")] 
         print(urlEnd)
-        url = "https://www.youtube.com/" + urlEnd
+        url = "https://www.youtube.com" + urlEnd
         print(url +"\n")
-             
-        if(len(url)>1):
-            ytdError.config(text="")
-            yt = YouTube(url)
+        try:     
+            if(len(url)>1):
+                ytdError.config(text="")
+                yt = YouTube(url)
 
-            if(choice == choices[0]):
-                select = yt.streams.filter(progressive=True).first()
+                if(choice == choices[0]):
+                    select = yt.streams.filter(progressive=True).first()
 
-            elif(choice == choices[1]):
-                select = yt.streams.filter(progressive=True,file_extension='mp4').last()
+                elif(choice == choices[1]):
+                    select = yt.streams.filter(progressive=True,file_extension='mp4').last()
 
-            elif(choice == choices[2]):
-                select = yt.streams.filter(only_audio=True).first()
+                elif(choice == choices[2]):
+                    select = yt.streams.filter(only_audio=True).first()
 
-            else:
-                ytdError.config(text="Paste Link again!!",fg="red")
+                else:
+                    ytdError.config(text="Paste Link again!!",fg="red")
+        except:
+            print("404 Error")
         
         select = yt.streams.filter(only_audio=True).first()
         try:
@@ -102,6 +107,31 @@ def txtPlaylistDownloader():
         time.sleep(1)
     
     ytdError.config(text="DOWNLOAD COMPLETED!!",fg="green")
+
+def txtYouTubeLinks():
+    global Txt_Video_Titles
+    global Folder_Name
+    print(Txt_Video_Titles)
+    linkFileNameAndPath = Folder_Name + "/LinkFile.txt"
+    ytLinksFile = open(linkFileNameAndPath, 'w')
+
+    for x in range(len(Txt_Video_Titles)):
+        ytdError.config(text=Txt_Video_Titles[x])
+        print(Txt_Video_Titles[x])
+        
+        results = YoutubeSearch(Txt_Video_Titles[x], max_results=1).to_json()
+        parseString = "\"url_suffix\": \""
+        locations = results.find(parseString) 
+        num = locations + len(parseString)
+        tempString = results[num:]
+        urlEnd = tempString[:tempString.find("\"")] 
+        print(urlEnd)
+        Yt_URL = "https://www.youtube.com" + urlEnd
+        print(Yt_URL)
+
+        ytLinksFile.write(Yt_URL+"\n")
+        ytLinksFile.close
+        
 
 
 root = Tk()
@@ -127,7 +157,7 @@ playlistTxtLabel = Label (root, text="Get a playlist of videos downloaded",font=
 playlistTxtLabel.grid()
 
 #btn of selecting txt file of video titles
-playlistTxtButton = Button(root,width=10,bg="red",fg="white",text="Choose Path",command=txtVideoTitles)
+playlistTxtButton = Button(root,width=28,bg="red",fg="white",text="Choose Path for Playlist of Titles",command=txtVideoTitles)
 playlistTxtButton.grid()
 
 #label to confirm txt playlist found
@@ -139,7 +169,7 @@ saveLabel = Label(root,text="Save the Video(s) File(s)",font=("jost",15,"bold"))
 saveLabel.grid()
 
 #btn of save file
-saveEntry = Button(root,width=10,bg="red",fg="white",text="Choose Path",command=openLocation)
+saveEntry = Button(root,width=28,bg="red",fg="white",text="Choose Path to Save File(s) To",command=openLocation)
 saveEntry.grid()
 
 #Error Msg location
@@ -162,6 +192,10 @@ downloadbtn.grid()
 #btn for initiating download of txt playlist
 downloadTxtPlaylistButton = Button(root,width=20,bg="red",fg="white",text="Download Txt Playlist",command=txtPlaylistDownloader)
 downloadTxtPlaylistButton.grid()
+
+#btn for getting a txt file of YouTube Links 
+txtYouTubeLinksButton = Button(root,width=28,bg="red",fg="white",text="YouTube Links from Text File of Titles",command=txtYouTubeLinks)
+txtYouTubeLinksButton.grid()
 
 #developer Label
 developerlabel = Label(root,text="Kurt Muller",font=("jost",15))
